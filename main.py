@@ -24,6 +24,6 @@ Here is the question to answer: {question}
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-result = chain.invoke({"survey_results": [], "question": "What factors most highly correlated with high test scores?"})
+result = chain.invoke({"survey_results": [], "question": "What factors determine test scores?"})
 
 print(result)
