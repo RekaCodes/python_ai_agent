@@ -24,6 +24,14 @@ Here is the question to answer: {question}
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-result = chain.invoke({"survey_results": [], "question": "What factors determine test scores?"})
 
-print(result)
+
+while True:
+    print("\n\n--------------------------------")
+    question = input("Ask your question (or type 'exit' to quit): ")
+    print("\n\n")
+    if question.lower() == "exit":
+        break
+    result = chain.invoke({"survey_results": [], "question": question})
+
+    print(result)
