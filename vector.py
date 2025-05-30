@@ -32,6 +32,4 @@ vector_store = Chroma(
 if add_documents:
     vector_store.add_documents(documents=documents, ids=ids)
 
-retriever = vector_store.as_retriever(
-    search_kwargs={"k": 5}
-)
+retriever = vector_store.as_retriever()
