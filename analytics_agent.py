@@ -14,6 +14,9 @@ import streamlit as st
 st.set_page_config(page_title="Streamlit Analytics Agent", page_icon="💡")
 
 
+
+
+
 # sidebar
 st.sidebar.header("File Upload")
 
@@ -74,6 +77,17 @@ if uploaded_file:
     # initialize model
     llm = OllamaLLM(model="llama3.2")
 
+    
+    # set up agent
+    agent = create_pandas_dataframe_agent(
+        llm,
+        df,
+        verbose=False,
+        agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        handle_parsing_errors=True,
+        allow_dangerous_code=True
+        )
+
     # initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -83,7 +97,23 @@ if uploaded_file:
             st.write(message["content"])
 
     with st.chat_message('assistant', avatar='💡'):
-        got_it = st.write("Got it! You uploaded a file with filename `{}`. Ask me anything about the data.".format(uploaded_file.name))
+        got_it = st.write("Got it! You uploaded a file with filename `{}`. I'll analyze that for you.".format(uploaded_file.name))
+        st.session_state.messages.append({"role": "assistant", "content": got_it})
+
+    # with st.chat_message('assistant', avatar='💡'):
+    #     got_it = st.write("Got it! You uploaded a file with filename `{}`. Ask me anything about the data.".format(uploaded_file.name))
+    #     st.session_state.messages.append({"role": "assistant", "content": got_it})
+
+    # respond
+    with st.spinner("Analyzing..."):
+        response = agent.invoke("Summarize the dataset.",handle_parsing_errors=True).get("output")
+    
+        with st.chat_message('assistant', avatar='💡'):
+            st.write(response)
+            st.session_state.messages.append({"role": "assistant", "content": response})
+
+    with st.chat_message('assistant', avatar='💡'):
+        got_it = st.write("If you have any questions, prompt me below.")
         st.session_state.messages.append({"role": "assistant", "content": got_it})
 
 
@@ -100,15 +130,15 @@ if uploaded_file:
         with st.chat_message('user', avatar='🗣️'):
             st.write(prompt)
 
-        # set up agent
-        agent = create_pandas_dataframe_agent(
-        llm,
-        df,
-        verbose=False,
-        agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        handle_parsing_errors=True,
-        allow_dangerous_code=True
-        )
+        # # set up agent
+        # agent = create_pandas_dataframe_agent(
+        # llm,
+        # df,
+        # verbose=False,
+        # agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        # handle_parsing_errors=True,
+        # allow_dangerous_code=True
+        # )
 
 
         # respond
